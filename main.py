@@ -1,91 +1,73 @@
-def row_check(xox):
-    output = []
-    if xox[0] == "X" and xox[4] == "X" and xox[8] == "X":
-        output.append("X wins")
-    elif xox[0] == "O" and xox[4] == "O" and xox[8] == "O":
-        output.append("O wins")
-    if xox[2] == "X" and xox[4] == "X" and xox[6] == "X":
-        output.append("X wins")
-    elif xox[2] == "O" and xox[4] == "O" and xox[6] == "O":
-        output.append("O wins")
-    for i in range(0, 7, 3):
-        if xox[i] == "X" and xox[i + 1] == "X" and xox[i + 2] == "X":
-            output.append("X wins")
-        elif xox[i] == "O" and xox[i + 1] == "O" and xox[i + 2] == "O":
-            output.append("O wins")
-    for j in range(3):
-        if xox[j] == "X" and xox[j + 3] == "X" and xox[j + 6] == "X":
-            output.append("X wins")
-        elif xox[j] == "O" and xox[j + 3] == "O" and xox[j + 6] == "O":
-            output.append("O wins")
-    x = 0
-    o = 0
-    for i in xox:
-        if i == "X":
-            x += 1
-        elif i == "O":
-            o += 1
-    if abs(x - o) > 1 or len(output) >= 1:
-        output.append("Impossible")
-        return output
+def show(xox):
+    print(f'''---------
+| {xox[0][0]} {xox[0][1]} {xox[0][2]} |
+| {xox[1][0]} {xox[1][1]} {xox[1][2]} |
+| {xox[2][0]} {xox[2][1]} {xox[2][2]} |
+---------''')
+
+
+def wins(xox):
+    status = [f'{xox[i][0]} wins' for i in range(0, 3) if xox[i][0] == xox[i][1] and xox[i][0] == xox[i][2]]
+    status.extend([f'{xox[0][i]} wins' for i in range(0, 3) if xox[0][i] == xox[1][i] and xox[0][i] == xox[2][i]])
+    status.extend([f'{xox[1][1]} wins' if (xox[0][0] == xox[1][1] and xox[1][1] == xox[2][2]) or
+                                          (xox[1][1] == xox[0][2] and xox[1][1] == xox[2][0]) else None])
+    return status
+
+
+def check_status(xox):
+    status = wins(xox)
+    cells = [j for i in xox for j in i]
+    if abs(cells.count('X') - cells.count('O')) > 1 or 'X wins' in status and 'O wins' in status:
+        return 'Impossible'
+    elif ' ' in cells and ('X wins' not in status and 'O wins' not in status):
+        return 'Game not finished'
+    elif 'X wins' not in status and 'O wins' not in status:
+        return 'Draw'
     else:
-        if " " in xox:
-            pass  # output.append("Game not finished")
+        return status[0]
+
+
+def valid_move(x, y, xox):
+    if not x.isdigit() or not y.isdigit():
+        print('You should enter numbers!')
+    elif 1 <= int(x) <= 3 and 1 <= int(y) <= 3:
+        if xox[int(x) - 1][int(y) - 1] != ' ':
+            print('This cell is occupied! Choose another one!')
         else:
-            output.append("Draw")
-        return output
+            return True
+    else:
+        print('Coordinates should be from 1 to 3!')
+    return False
 
 
-def play_xox(xox, player):
-    coord = {(1, 1): 0, (1, 2): 1, (1, 3): 2,
-             (2, 1): 3, (2, 2): 4, (2, 3): 5,
-             (3, 1): 6, (3, 2): 7, (3, 3): 8}
+def play():
+    matrix = [[' ' for _ in range(0 + i, 3 + i)] for i in range(0, 9, 3)]
+    next_move = 'X'
     while True:
-        x, y = input("Enter the coordinates:").split()
-        num = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-        if x not in num or y not in num:
-            print("You should enter numbers!")
-            continue
-        elif int(x) not in [1, 2, 3] or int(y) not in [1, 2, 3]:
-            print("Coordinates should be from 1 to 3!")
-            continue
-        else:
-            if xox[coord[(int(x), int(y))]] != " ":
-                print("This cell is occupied! Choose another one!")
+        show(matrix)
+        while True:
+            try:
+                row, column = input('Enter the coordinates: ').split()
+            except ValueError:
+                print('You should enter numbers!')
+                continue
+            if not valid_move(row, column, matrix):
                 continue
             else:
-                xox[coord[(int(x), int(y))]] = player
+                if next_move == 'X':
+                    matrix[int(row) - 1][int(column) - 1] = 'X'
+                    next_move = 'O'
+                else:
+                    matrix[int(row) - 1][int(column) - 1] = 'O'
+                    next_move = 'X'
+                break
+        game_status = check_status(matrix)
+        if game_status == 'Game not finished':
+            continue
+        else:
+            show(matrix)
+            print(game_status)
             break
-    return xox
 
 
-print(f"""---------
-|       |
-|       |
-|       |
----------""")
-xox = [" "] * 9
-last = "O"
-while True:
-    if last == "O":
-        xox = play_xox(xox, "X")
-        print(f"""---------
-| {xox[0]} {xox[1]} {xox[2]} |
-| {xox[3]} {xox[4]} {xox[5]} |
-| {xox[6]} {xox[7]} {xox[8]} |
----------""")
-        last = "X"
-    else:
-        xox = play_xox(xox, "O")
-        print(f"""---------
-| {xox[0]} {xox[1]} {xox[2]} |
-| {xox[3]} {xox[4]} {xox[5]} |
-| {xox[6]} {xox[7]} {xox[8]} |
----------""")
-        last = "O"
-    status = row_check(xox)
-    if ("X wins" in status) or ("O wins" in status) or ("Impossible" in status) or ("Draw" in status):
-        print(status[0])
-        break
-    else:
-        continue
+play()
