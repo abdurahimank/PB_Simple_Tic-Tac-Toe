@@ -1,4 +1,4 @@
-# Stage 3/5: What's up on the field?
+# Stage 4/5: First move!
 def display(x):
     print(f"""---------
 | {x[0][0]} {x[0][1]} {x[0][2]} |
@@ -6,7 +6,7 @@ def display(x):
 | {x[2][0]} {x[2][1]} {x[2][2]} |
 ---------""")
 
-
+"""
 def game_status(x):
     status = []
     cells = [j for i in x for j in i]
@@ -19,9 +19,27 @@ def game_status(x):
                                    (abs(cells.count("X") - cells.count("O"))) > 1 else None])
     return status
 
-
+"""
 xox = input()
 xox = [[xox[j] for j in range(i, i + 3)] for i in range(0, 9, 3)]
 display(xox)
-status_game = [i for i in game_status(xox) if i is not None]
-print(status_game[0] if "Impossible" not in status_game else "Impossible")
+# status_game = [i for i in game_status(xox) if i is not None]
+# print(status_game[0] if "Impossible" not in status_game else "Impossible")
+while True:
+    try:
+        x, y = input().split()
+        if (not x.isdigit()) and (not y.isdigit()):
+            raise ValueError
+    except ValueError:
+        print("You should enter numbers!")
+    else:
+        x, y = int(x), int(y)
+        if 1 <= x <= 3 and 1 <= y <= 3:
+            if xox[x - 1][y - 1] == "_":
+                xox[x - 1][y - 1] = "X"
+                break
+            else:
+                print("This cell is occupied! Choose another one!")
+        else:
+            print("Coordinates should be from 1 to 3!")
+display(xox)
